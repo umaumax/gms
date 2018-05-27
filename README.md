@@ -5,8 +5,10 @@ Golang Markdown Server
 FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 
 ## Usage
-`go get github.com/umaumax/gms`
-`gms`
+```
+go get github.com/umaumax/gms
+gms
+```
 
 ## Config File
 1. `.gms.config.tml`

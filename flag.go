@@ -41,16 +41,19 @@ func initConfig() {
 	//	parse "~" as homedir
 	var err error
 	var configFilepath string
-	for i, v := range configFilepaths {
+	for _, v := range configFilepaths {
 		if v == "" {
 			continue
 		}
 		configFilepath, err = homedir.Expand(v)
-		if err == nil {
-			log.Println("load config file at", v)
-			break
+		if err != nil {
+			log.Fatalln("home dir exapnd error", err)
 		}
-		log.Println("home dir", err, "priority:", i+1)
+		if _, err = os.Stat(configFilepath); err != nil {
+			log.Println("config file load fail at", v)
+		}
+		log.Println("config fil load success at", v)
+		break
 	}
 	if err != nil {
 		log.Fatalln("please create " + defaultConfigFilepaths[0])
