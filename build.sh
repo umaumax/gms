@@ -1,0 +1,3 @@
+#!/bin/sh
+go-bindata -pkg=main -o=bindata.go -ignore="\\.DS_Store" ./_assets/...
+go install

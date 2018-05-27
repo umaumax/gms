@@ -1,0 +1,68 @@
+.tree-menu {
+	line-height: 1.0em;
+}
+
+.tree-menu,
+.tree-menu ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.tree-menu ul {
+	position: relative;
+	margin-top: 0.75em;
+	margin-left: 1.5em;
+}
+.tree-menu ul:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 0;
+	border-left: 4px solid green;
+}
+
+.tree-menu ul li {
+	position: relative;
+	margin: 0;
+	padding: 0.75em 1.5em;
+}
+
+.tree-menu ul li:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 1.0em;
+	left: 0;
+	width: 0.75em;
+	height: 0;
+	border-top: 4px solid green;
+}
+
+.tree-menu ul li:last-child:before {
+	top: 1.0em;
+	bottom: 0;
+	height: auto;
+	background-color: #fff;
+}
+
+html {
+	box-sizing: border-box;
+}
+
+*,
+	*:before,
+	*:after {
+		box-sizing: inherit;
+	}
+
+	body {
+		max-width: 800px;
+		margin: auto;
+		padding: 1em;
+		font-family: courier;
+		background-color: #fff;
+	}

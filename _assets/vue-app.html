@@ -1,0 +1,24 @@
+<div class="extended_html">
+	<div id="grepInput">
+		<pre>{{ message }}</pre>
+	<p class="bg-danger">{{ errorMessage }}</p>
+
+	<label for="checkbox"> regexp </label>
+	<input type="checkbox" id="checkbox" v-model="regexpChecked" v-on:change="grep">
+	<label for="checkbox"> case-insensitive </label>
+	<input type="checkbox" id="checkbox" v-model="caseInsensitiveChecked" v-on:change="grep">
+	<br />
+
+	<!-- NOTE: Vue.js rewrite autofocus setting ... -->
+	<!--<input autofocus v-model="message" v-on:keyup="grep">-->
+	<input v-model="keyword" v-on:keyup="grep">
+</div>
+
+<br />
+
+<div id="fileListId" v-on:keyup.esc="focus" v-on:keyup.delete="focus">
+	<ol>
+		<file-item v-for="item in fileList" v-bind:file="item"></file-item>
+	</ol>
+</div>
+</div>
