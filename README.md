@@ -11,6 +11,7 @@ FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 ## Install
 ```
 go get -u github.com/umaumax/gms
+```
 
 ## Usage
 ### Config File Load Priority
