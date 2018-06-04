@@ -4,6 +4,10 @@ Golang Markdown Server
 
 FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 
+## TODO
+* load dynamic markdown show
+  * e.g. register command curl 'http://localhost/?file=xxx'
+
 ## Usage
 ```
 go get github.com/umaumax/gms
