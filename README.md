@@ -8,17 +8,23 @@ FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 * load dynamic markdown show
   * e.g. register command curl 'http://localhost/?file=xxx'
 
-## Usage
+## Install
 ```
-go get github.com/umaumax/gms
-gms
-```
+go get -u github.com/umaumax/gms
 
-## Config File
+## Usage
+### Config File Load Priority
 1. `.gms.config.tml`
 1. `~/.gms.config.tml`
 
-e.g.
+### Run
+```
+gms
+```
+
+----
+
+e.g. config file
 ```
 # config file
 title = "GMS"
