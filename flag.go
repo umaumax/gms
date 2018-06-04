@@ -27,7 +27,7 @@ var defaultConfigFilepaths = []string{
 }
 
 func init() {
-	log.SetFlags(log.Llongfile)
+	// 	log.SetFlags(log.Llongfile)
 
 	flag.StringVar(&configFilepath, "c", "", "config toml file path (priority:"+strings.Join(defaultConfigFilepaths, ",")+")")
 
@@ -51,8 +51,9 @@ func initConfig() {
 		}
 		if _, err = os.Stat(configFilepath); err != nil {
 			log.Println("config file load fail at", v)
+			continue
 		}
-		log.Println("config fil load success at", v)
+		log.Println("config file load success at", v)
 		break
 	}
 	if err != nil {
