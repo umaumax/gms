@@ -339,6 +339,9 @@ func main() {
 			}
 			return
 		}
+		if name == "favicon.ico" {
+			name = "_assets/favicon.ico"
+		}
 		if strings.HasPrefix(name, "_assets/") {
 			b, err := OpenIncludingAsset(name)
 			if err != nil {

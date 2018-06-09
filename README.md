@@ -10,6 +10,7 @@ FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 
 ## NOTE
 * asset fileが存在しない場合はbinaryにbindされているファイルから読み込む
+* [favicon\.ico \(32×32\)]( https://golang.org/favicon.ico )
 
 ## Install
 ```
