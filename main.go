@@ -267,29 +267,61 @@ func main() {
 				log.Printf("os.Stat:[%s]:%s\n", name, err)
 			} else if fi.IsDir() {
 				var names []string
-				err = filepath.Walk(name, func(path string, fi os.FileInfo, err error) error {
+				symbolicLinks := make(map[string]string)
+				var fWalkFunc filepath.WalkFunc
+				fWalkFunc = func(path string, fi os.FileInfo, err error) error {
 					if err != nil {
 						return err
 					}
-					if strings.HasPrefix(fi.Name(), ".") {
-						log.Println("skip file", path, "starts with '.'")
-						return nil
-					}
-					if strings.HasPrefix(fi.Name(), "_") {
-						log.Println("skip file", path, "starts with '_'")
+					if fi.Name() != "." && strings.HasPrefix(fi.Name(), ".") {
+						log.Println("skip", path, "starts with '.'")
 						if fi.IsDir() {
 							return filepath.SkipDir
 						}
 						return nil
 					}
-					// NOTE: only md files
-					if !strings.HasSuffix(fi.Name(), ".md") {
-						log.Println("skip file", path, "not end with '.md'")
+					if strings.HasPrefix(fi.Name(), "_") {
+						log.Println("skip", path, "starts with '_'")
+						if fi.IsDir() {
+							return filepath.SkipDir
+						}
 						return nil
 					}
-					names = append(names, path)
+					if !fi.IsDir() {
+						if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+							realPath, err := os.Readlink(path)
+							if err != nil {
+								log.Println("read symbolic link err:", err)
+								return nil
+							}
+							log.Println("traverse symbolic link:", realPath)
+							if _, ok := symbolicLinks[realPath]; ok {
+								log.Println("[warning] loop symbolic link")
+								return nil
+							}
+							// NOTE: to avoid "/." e.g. "xxx/."
+							realPath = filepath.Clean(realPath)
+							symbolicLinks[realPath] = path
+							return filepath.Walk(realPath, fWalkFunc)
+						}
+						if !strings.HasSuffix(fi.Name(), ".md") {
+							log.Println("skip file", path, "not end with '.md'")
+							return nil
+						}
+						// NOTE: only md files
+						names = append(names, path)
+					}
 					return nil
-				})
+				}
+				err = filepath.Walk(name, fWalkFunc)
+				// NOTE: rewrite symboliclink
+				for realPath, path := range symbolicLinks {
+					for i, name := range names {
+						if strings.HasPrefix(name, realPath) {
+							names[i] = strings.Replace(name, realPath, path, 1)
+						}
+					}
+				}
 				data = struct {
 					Names []string `json:"names"`
 				}{

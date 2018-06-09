@@ -66,6 +66,9 @@ func DirTreeTemplate(w http.ResponseWriter, path string) (err error) {
 			fis, err := ioutil.ReadDir(path)
 			_ = err
 			for _, fi := range fis {
+				if fi.IsDir() {
+					continue
+				}
 				if strings.HasPrefix(fi.Name(), ".") {
 					log.Println("skip file", filepath.Join(path, fi.Name()), "starts with '.'")
 					continue
