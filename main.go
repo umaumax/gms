@@ -22,7 +22,9 @@ import (
 
 func OpenIncludingAsset(name string) (data []byte, err error) {
 	data, err = ioutil.ReadFile(name)
-	if err != nil {
+	if err == nil {
+		log.Println("load local file:", name)
+	} else {
 		data, err = Asset(name)
 	}
 	return
@@ -48,8 +50,9 @@ func main() {
 		walkRoot = filepath.Base(config.RootDir)
 	}
 	//	カレントディレクトリを変更
-	os.Chdir(dir)
-	cwd := "."
+	// 	os.Chdir(dir)
+	// 	cwd := "."
+	cwd := dir
 
 	//	livereload.js server
 	lrs := livereload.New("mkup")
@@ -257,16 +260,14 @@ func main() {
 		name = strings.TrimPrefix(name, "/")
 		// NOTE:指定したディレクトリのファイルツリーの取得
 		if strings.HasPrefix(name, "_api/") {
-			fmt.Println(name)
 			name = strings.TrimPrefix(name, "_api/")
-			fmt.Println(name)
 			name = filepath.Clean(name)
+			fpath := filepath.Join(cwd, name)
+			log.Println("api", name)
 
-			var data interface{}
-			data = []string{}
+			var data interface{} = []string{}
 
-			fmt.Println(name)
-			fi, err := os.Stat(name)
+			fi, err := os.Stat(fpath)
 			if err != nil {
 				log.Printf("os.Stat:[%s]:%s\n", name, err)
 			} else if fi.IsDir() {
@@ -323,13 +324,20 @@ func main() {
 					}
 					return nil
 				}
-				err = filepath.Walk(name, fWalkFunc)
-				// NOTE: rewrite symboliclink
-				for realPath, path := range symbolicLinks {
-					for i, name := range names {
-						if strings.HasPrefix(name, realPath) {
-							names[i] = strings.Replace(name, realPath, path, 1)
+				err = filepath.Walk(fpath, fWalkFunc)
+				for i, _ := range names {
+					// NOTE: rewrite symboliclink
+					// NOTE: シンボリックリンクがあるパス上に複数ある場合には短い方が優先されている
+					for realPath, path := range symbolicLinks {
+						if strings.HasPrefix(names[i], realPath) {
+							names[i] = strings.Replace(names[i], realPath, path, 1)
+							break
 						}
+					}
+					// NOTE: delete cwd path
+					if strings.HasPrefix(names[i], cwd+"/") {
+						names[i] = strings.Replace(names[i], cwd+"/", "", 1)
+						continue
 					}
 				}
 				data = struct {
@@ -367,15 +375,16 @@ func main() {
 		// use Clean() prevent directory traversal attack
 		//	https://golang.org/pkg/path/filepath/#Clean
 		name = filepath.Clean(name)
-		fi, err := os.Stat(name)
+		fpath := filepath.Join(cwd, name)
+		fi, err := os.Stat(fpath)
 		if err != nil {
 			log.Println("os.Stat", err)
 			PageNotFound(w, r)
 			return
 		}
-		//	NOTE ディレクトリの場合はリンク生成
 		if fi.IsDir() {
-			err = DirTreeTemplate(w, name)
+			// NOTE: 厳密にはtreeを構築するためのindex.htmlにあたるファイルを返す(実際には，_apiで取得する)
+			err = DirTreeTemplate(w, fpath)
 			if err != nil {
 				log.Println("template", err)
 				//	NOTE 厳密には404ではない?!
@@ -389,7 +398,7 @@ func main() {
 		switch ext {
 		//	NOTE 実行結果を表示
 		case ".go":
-			b, err := goexec("." + name)
+			b, err := goexec("." + fpath)
 			content := string(b)
 			if err != nil {
 				content += err.Error()
@@ -398,7 +407,7 @@ func main() {
 			return
 			//	NOTE マークダウン生成
 		case ".txt", ".md", ".mkd", ".markdown":
-			b, err := ioutil.ReadFile(filepath.Join(cwd, name))
+			b, err := ioutil.ReadFile(fpath)
 			if err != nil {
 				if os.IsNotExist(err) {
 					PageNotFound(w, r)
@@ -409,12 +418,11 @@ func main() {
 				return
 			}
 
-			//	NOTE アクセスしたディレクトリの監視
+			//	NOTE アクセスしたファイルのディレクトリの監視
 			//	TODO シンボリックリンクだった場合は?!
-			dir := filepath.Dir(name)
-			accessMap.Append(dir)
-			watchDir := filepath.Join(cwd, dir)
-			log.Println("watch dir add", name, dir, watchDir)
+			watchDir := filepath.Dir(fpath)
+			accessMap.Append(watchDir)
+			log.Println("watch dir add", name, "at", watchDir)
 			if err := checkWatch(watchDir); err != nil {
 				log.Println("watch dir add error:", err)
 			}

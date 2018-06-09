@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
+	// 	"log"
 	//	"html/template"
-	"io/ioutil"
+	// 	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
+	// 	"os"
+	// 	"path/filepath"
+	// 	"strings"
 	"text/template"
 )
 
@@ -50,48 +50,48 @@ func DirTreeTemplate(w http.ResponseWriter, path string) (err error) {
 	//		return
 	//	}
 
-	var f func(path string, depth int) (s string)
-	f = func(path string, depth int) (s string) {
-		fi, err := os.Stat(path)
-		if err != nil {
-			return err.Error()
-		}
-		//	TODO double qoute?!
-		s += fmt.Sprintf(`<li><a href="%s">%s</a>`, "/"+path, filepath.Base(path))
-		if fi.IsDir() {
-			s += "<ul>"
-			//			if depth > 0 {
-			//				s += `<div style="display:none;">`
-			//			}
-			fis, err := ioutil.ReadDir(path)
-			_ = err
-			for _, fi := range fis {
-				if fi.IsDir() {
-					continue
-				}
-				if strings.HasPrefix(fi.Name(), ".") {
-					if !skipLogFlag {
-						log.Println("skip file", filepath.Join(path, fi.Name()), "starts with '.'")
-					}
-					continue
-				}
-				s += f(filepath.Join(path, fi.Name()), depth+1)
-			}
-			//			if depth > 0 {
-			//				s += `</div>`
-			//			}
-			s += "</ul>"
-		}
-		s += "</li>"
-		return
-	}
-	tree := f(path, 0)
+	// 	var f func(path string, depth int) (s string)
+	// 	f = func(path string, depth int) (s string) {
+	// 		fi, err := os.Stat(path)
+	// 		if err != nil {
+	// 			return err.Error()
+	// 		}
+	// 		//	TODO double qoute?!
+	// 		s += fmt.Sprintf(`<li><a href="%s">%s</a>`, "/"+path, filepath.Base(path))
+	// 		if fi.IsDir() {
+	// 			s += "<ul>"
+	// 			//			if depth > 0 {
+	// 			//				s += `<div style="display:none;">`
+	// 			//			}
+	// 			fis, err := ioutil.ReadDir(path)
+	// 			_ = err
+	// 			for _, fi := range fis {
+	// 				if fi.IsDir() {
+	// 					continue
+	// 				}
+	// 				if strings.HasPrefix(fi.Name(), ".") {
+	// 					if !skipLogFlag {
+	// 						log.Println("skip file", filepath.Join(path, fi.Name()), "starts with '.'")
+	// 					}
+	// 					continue
+	// 				}
+	// 				s += f(filepath.Join(path, fi.Name()), depth+1)
+	// 			}
+	// 			//			if depth > 0 {
+	// 			//				s += `</div>`
+	// 			//			}
+	// 			s += "</ul>"
+	// 		}
+	// 		s += "</li>"
+	// 		return
+	// 	}
+	// 	tree := f(path, 0)
 	err = dirTreeTemplate.Execute(w, struct {
 		Title string
 		Links string
 	}{
 		Title: config.Title,
-		Links: tree,
+		// 		Links: tree,
 	})
 	if err != nil {
 		return
