@@ -15,6 +15,7 @@ import (
 var (
 	configFilepath string
 	config         Config
+	skipLogFlag    bool
 
 	_rootDir        string
 	_addr           string
@@ -34,6 +35,8 @@ func init() {
 	flag.StringVar(&_rootDir, "root", "", "serve file's root dir")
 	flag.StringVar(&_addr, "http", "", "HTTP service address (e.g., ':8765')")
 	flag.StringVar(&_livereloadAddr, "lrhttp", "", "livereload HTTP service address (e.g., ':0 or :35279 ...')")
+
+	flag.BoolVar(&skipLogFlag, "skip-log", true, "print skip files log flag")
 }
 
 func initConfig() {

@@ -106,7 +106,9 @@ func main() {
 		//	. or _ 始まりのディレクトリは無視する
 		if fi.Name() != "." &&
 			(strings.HasPrefix(fi.Name(), ".") || strings.HasPrefix(fi.Name(), "_")) {
-			log.Println("skip dir (prefix . or _) : ", fi.Name)
+			if !skipLogFlag {
+				log.Println("skip dir (prefix . or _) : ", fi.Name)
+			}
 			if fi.IsDir() {
 				return filepath.SkipDir
 			}
@@ -164,7 +166,9 @@ func main() {
 				eventPath := filepath.Clean(event.Name)
 				//	NOTE backup fileは無視する仕様
 				if strings.HasSuffix(eventPath, "~") {
-					log.Println("skip backup file (suffix ~) : ", eventPath)
+					if !skipLogFlag {
+						log.Println("skip backup file (suffix ~) : ", eventPath)
+					}
 					break
 				}
 
@@ -274,14 +278,18 @@ func main() {
 						return err
 					}
 					if fi.Name() != "." && strings.HasPrefix(fi.Name(), ".") {
-						log.Println("skip", path, "starts with '.'")
+						if !skipLogFlag {
+							log.Println("skip", path, "starts with '.'")
+						}
 						if fi.IsDir() {
 							return filepath.SkipDir
 						}
 						return nil
 					}
 					if strings.HasPrefix(fi.Name(), "_") {
-						log.Println("skip", path, "starts with '_'")
+						if !skipLogFlag {
+							log.Println("skip", path, "starts with '_'")
+						}
 						if fi.IsDir() {
 							return filepath.SkipDir
 						}
@@ -305,7 +313,9 @@ func main() {
 							return filepath.Walk(realPath, fWalkFunc)
 						}
 						if !strings.HasSuffix(fi.Name(), ".md") {
-							log.Println("skip file", path, "not end with '.md'")
+							if !skipLogFlag {
+								log.Println("skip file", path, "not end with '.md'")
+							}
 							return nil
 						}
 						// NOTE: only md files
