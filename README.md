@@ -8,6 +8,9 @@ FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 * load dynamic markdown show
   * e.g. register command curl 'http://localhost/?file=xxx'
 
+## NOTE
+* asset fileが存在しない場合はbinaryにbindされているファイルから読み込む
+
 ## Install
 ```
 go get -u github.com/umaumax/gms

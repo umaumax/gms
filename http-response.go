@@ -14,7 +14,7 @@ import (
 
 //	404
 func PageNotFound(w http.ResponseWriter, r *http.Request) {
-	b, err := Asset("_assets/gopher-404.png.base64")
+	b, err := OpenIncludingAsset("_assets/gopher-404.png.base64")
 	if err != nil {
 		http.Error(w, "404 page not found", 404)
 		return
