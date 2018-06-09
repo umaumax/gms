@@ -49,7 +49,7 @@
         var grepInputApp = new Vue({
             el: '#grepInput',
             data: {
-                message: 'How to use!!\n\n1. input search keyword!\n2. tab (+shift)\n3. enter with (command[tab] or shift[window])\n\n A. in file list key "esc" or delete -> refocus',
+                message: 'How to use!!\n\n1. input search keyword!(multiple words => AND search)\n2. tab (+shift)\n3. enter with (command[tab] or shift[window])\n\n A. in file list key "esc" or delete -> refocus',
                 caseInsensitiveChecked: true,
                 regexpChecked: true,
                 keyword: '',
@@ -63,9 +63,10 @@
                     this.errorMessage = '';
 
                     var keyword = this.keyword.toLowerCase();
-                    //				console.log("keyword", keyword);
+                    var keywords = keyword.trim(' ').split(' ');
                     var re = null;
-                    if (this.regexpChecked) {
+                    // NOTE: 空白が含まれていれば，正規表現オプションが ONでもAND検索
+                    if (keyword.indexOf(' ') == -1 && this.regexpChecked) {
                         try {
                             var flags = 'mg';
                             if (this.caseInsensitiveChecked) flags += 'i';
@@ -73,10 +74,6 @@
                         } catch (e) {
                             this.errorMessage = String(e);
                         }
-                        //				console.log("RegExp", re);
-                        //						if (re == null) {
-                        //							return;
-                        //						}
                     }
 
                     if (re != null && this.regexpChecked) {
@@ -84,13 +81,10 @@
                         $("#fileListId").markRegExp(re);
                     } else {
                         $("#fileListId").unmark();
-                        $("#fileListId").mark(keyword);
+                        for (let keyword of keywords) {
+                            $("#fileListId").mark(keyword);
+                        }
                     }
-
-                    // NOTE title change example
-                    //	$("h1").unmark();
-                    //	$("h1").mark(this.message);
-                    //	$("h1").markRegExp(re);
 
                     var cnt = 0;
                     for (var i = 0; i < fileList.length; i++) {
@@ -103,7 +97,12 @@
                             ret = target.match(re) != null;
                         }
                         if (!ret) {
-                            ret = target.toLowerCase().includes(keyword);
+                            // NOTE: 通常の検索
+                            ret = true;
+                            for (let keyword of keywords) {
+                                // NOTE: AND search
+                                ret = ret && target.toLowerCase().includes(keyword);
+                            }
                         }
                         if (ret) {
                             cnt++;
@@ -113,7 +112,7 @@
                         }
                     }
 
-                    this.message = (cnt).format(" ", 3) + ' Hit!!';
+                    this.message = (cnt).format(" ", 3) + ' Hit!!sample';
                 }
             }
         });
