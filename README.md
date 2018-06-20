@@ -4,13 +4,9 @@ Golang Markdown Server
 
 FYI: [mattn/mkup: Portable Markdown Previewer]( https://github.com/mattn/mkup )
 
-## TODO
-* load dynamic markdown show
-  * e.g. register command curl 'http://localhost/?file=xxx'
-
 ## NOTE
 * asset fileが存在しない場合はbinaryにbindされているファイルから読み込む
-* [favicon\.ico \(32×32\)]( https://golang.org/favicon.ico )
+* favicon is downloaded from [favicon\.ico \(32×32\)]( https://golang.org/favicon.ico )
 
 ## Install
 ```

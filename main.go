@@ -119,12 +119,13 @@ func main() {
 		}
 
 		if !fi.IsDir() {
-			//	シンボリックリンクファイルの場合は指し示す先のファイルを監視
+			// NOTE; シンボリックリンクファイルの場合は指し示す先のファイルもしくはディレクトリを監視しなければ，変更が検知できない
+			// NOTE: vimの場合はtemporaryファイルを作成し，renameしているので，ファイルのみの監視ではなく，ディレクトリの監視が望ましい
 			if ret, err := IsSymlink(path); err == nil && ret {
 				realPath, _ := os.Readlink(path)
-				log.Println("watch symbolic link file", realPath)
+				log.Println("watch symbolic link file", realPath, "from", path)
 				symbolicFilePathMap[realPath] = path
-				fsw.Add(realPath)
+				fsw.Add(filepath.Dir(realPath))
 				return nil
 			}
 			return
@@ -195,11 +196,11 @@ func main() {
 				//	NOTE CREATE or WRITEを監視すれば十分だと思われる
 				if is(fsnotify.Create) || is(fsnotify.Write) {
 					if filepath.IsAbs(eventPath) {
-						if originPath, ok := symbolicFilePathMap[eventPath]; ok {
+						if symbolicPath, ok := symbolicFilePathMap[eventPath]; ok {
 							//	NOTE ファイルの場合には監視対象から外れてしまうので再度追加
 							fsw.Add(eventPath)
-							log.Printf("%s's event was found by watching symbolic file at %s\n", eventPath, originPath)
-							eventPath = originPath
+							log.Printf("%s's event was found by watching symbolic file at %s\n", eventPath, symbolicPath)
+							eventPath = symbolicPath
 						}
 					}
 					if !filepath.IsAbs(eventPath) {
@@ -226,7 +227,7 @@ func main() {
 							log.Println(err)
 							break
 						}
-						if !fi.IsDir() {
+						if !fi.IsDir() && filepath.Ext(fi.Name()) == ".md" {
 							log.Println("reload", relPath)
 							lrs.Reload(relPath, true)
 						}
@@ -422,9 +423,14 @@ func main() {
 			//	TODO シンボリックリンクだった場合は?!
 			watchDir := filepath.Dir(fpath)
 			accessMap.Append(watchDir)
-			log.Println("watch dir add", name, "at", watchDir)
+			log.Println("watch dir add", watchDir, "by accessing", name)
 			if err := checkWatch(watchDir); err != nil {
 				log.Println("watch dir add error:", err)
+			}
+			if ret, err := IsSymlink(fpath); err == nil && ret {
+				if err := checkWatch(fpath); err != nil {
+					log.Println("watch symbolic file add error:", err)
+				}
 			}
 
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
