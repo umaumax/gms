@@ -1,0 +1,8 @@
+~*
+# _assets/
+example/
+*.plist
+install.sh
+rozen.plist.json
+!.gms.config.tml
+vendor/

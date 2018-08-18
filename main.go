@@ -110,7 +110,7 @@ func main() {
 		if fi.Name() != "." &&
 			(strings.HasPrefix(fi.Name(), ".") || strings.HasPrefix(fi.Name(), "_")) {
 			if !skipLogFlag {
-				log.Println("skip dir (prefix . or _) : ", fi.Name)
+				log.Println("skip dir (prefix . or _) : ", fi.Name())
 			}
 			if fi.IsDir() {
 				return filepath.SkipDir
@@ -119,7 +119,7 @@ func main() {
 		}
 
 		if !fi.IsDir() {
-			// NOTE; シンボリックリンクファイルの場合は指し示す先のファイルもしくはディレクトリを監視しなければ，変更が検知できない
+			// NOTE: シンボリックリンクファイルの場合は指し示す先のファイルもしくはディレクトリを監視しなければ，変更が検知できない
 			// NOTE: vimの場合はtemporaryファイルを作成し，renameしているので，ファイルのみの監視ではなく，ディレクトリの監視が望ましい
 			if ret, err := IsSymlink(path); err == nil && ret {
 				realPath, _ := os.Readlink(path)
@@ -275,6 +275,17 @@ func main() {
 				var names []string
 				symbolicLinks := make(map[string]string)
 				var fWalkFunc filepath.WalkFunc
+				var appendFile = func(path string) {
+					// NOTE: only md files
+					if !strings.HasSuffix(path, ".md") {
+						if !skipLogFlag {
+							log.Println("skip file", path, "not end with '.md'")
+						}
+						return
+					}
+					names = append(names, path)
+				}
+
 				fWalkFunc = func(path string, fi os.FileInfo, err error) error {
 					if err != nil {
 						return err
@@ -312,16 +323,15 @@ func main() {
 							// NOTE: to avoid "/." e.g. "xxx/."
 							realPath = filepath.Clean(realPath)
 							symbolicLinks[realPath] = path
-							return filepath.Walk(realPath, fWalkFunc)
-						}
-						if !strings.HasSuffix(fi.Name(), ".md") {
-							if !skipLogFlag {
-								log.Println("skip file", path, "not end with '.md'")
+							if fi, err := os.Stat(realPath); err != nil && !fi.IsDir() {
+								appendFile(realPath)
+								return nil
 							}
+							// NOTE: dir
+							err = filepath.Walk(realPath, fWalkFunc)
 							return nil
 						}
-						// NOTE: only md files
-						names = append(names, path)
+						appendFile(path)
 					}
 					return nil
 				}
