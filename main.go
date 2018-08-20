@@ -323,7 +323,7 @@ func main() {
 							// NOTE: to avoid "/." e.g. "xxx/."
 							realPath = filepath.Clean(realPath)
 							symbolicLinks[realPath] = path
-							if fi, err := os.Stat(realPath); err != nil && !fi.IsDir() {
+							if fi, err := os.Stat(realPath); err == nil && !fi.IsDir() {
 								appendFile(realPath)
 								return nil
 							}
